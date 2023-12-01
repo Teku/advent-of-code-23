@@ -1,6 +1,6 @@
 # Advent of Code 2023
 
-For the first time I am doing to try to do the 2023 Advent of Code... and keep a public log of it.
+For the first time I am going to try to do the 2023 Advent of Code... and keep a public log of it.
 
 These files have a basic class for reading environment variables and pulling down the daily input files, provided you put in the right session cookie.
 
