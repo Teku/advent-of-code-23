@@ -10,10 +10,11 @@ class Daily {
     private $cookie;
     private $url;
     private $dotenv;
+    private $cache_file;
 
     function __construct($day, $year)
     {
-        $this->day = $day;
+        $this->day = str_pad($day, 2, '0', STR_PAD_LEFT);
         $this->year = $year;
 
         $this->dotenv = new Env();
@@ -21,11 +22,13 @@ class Daily {
         $this->cookie = $this->dotenv->get('SESSION_COOKIE');
         $this->url = sprintf($this->dotenv->get('BASE_URL_STRING'), $this->year, $this->day);
 
+        $this->cache_file = __DIR__ . '/day-' . $this->day . '/day-' . $this->day . '-input.txt';
+
         echo $this->url . PHP_EOL;
     }
 
     function get() : string|Exception {
-        if(!file_exists('day-' . $this->day . '-input.txt') || true) {          
+        if(!file_exists($this->cache_file)) {     
             $headers = [];
             $headers[] = 'Cookie: session=' . $this->cookie;
         
@@ -46,12 +49,12 @@ class Daily {
         
             // Save to file
             try {
-                file_put_contents('day-01-input.txt', $data);
+                file_put_contents($this->cache_file, $data);
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
         } else {
-            $data = file_get_contents('day-01-input.txt');
+            $data = file_get_contents($this->cache_file);
         }
 
         return $data;
