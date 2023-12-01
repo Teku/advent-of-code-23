@@ -9,12 +9,12 @@ class Env {
     {
         $this->path = realpath(__DIR__."/.env");
 
-        //Check .envenvironment file exists
+        //Check .env environment file exists
         if(!is_file($this->path)){
             throw new ErrorException("Environment File is Missing.");
         }
         
-        //Check .envenvironment file is readable
+        //Check .env environment file is readable
         if(!is_readable($this->path)){
             throw new ErrorException("Permission Denied for reading the ".($this->path).".");
         }
