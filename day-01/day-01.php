@@ -7,10 +7,19 @@ $data = $daily->get();
 
 $lines = explode("\n", $data);
 
-// Part 1
-$count = 0;
+$total = 0;
+
+// EVaulate each line
 foreach ($lines as $line) {
-    $count += count(preg_split('/\s+/', $line));
+    $total += (int) calibrate($line);
 }
 
-echo $count. PHP_EOL;
+echo $total . PHP_EOL;
+
+// Part 1
+function calibrate($line) : int|string {
+    // return only numeric values
+    $numbers = preg_replace('/[^0-9]/', '', $line);
+    // return only the first and the last digit, combined.
+    return substr($numbers, 0, 1) . substr($numbers, -1);
+}
