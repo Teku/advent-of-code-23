@@ -23,8 +23,6 @@ class Daily {
         $this->url = sprintf($this->dotenv->get('BASE_URL_STRING'), $this->year, $this->day);
 
         $this->cache_file = __DIR__ . '/day-' . $this->day . '/day-' . $this->day . '-input.txt';
-
-        echo $this->url . PHP_EOL;
     }
 
     function get() : string|Exception {
