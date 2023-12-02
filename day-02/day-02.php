@@ -16,7 +16,6 @@ $max_values = array(
 $game_sum = 0;
 
 // Part 1
-// Game 1: 4 blue, 16 green, 2 red; 5 red, 11 blue, 16 green; 9 green, 11 blue; 10 blue, 6 green, 4 red
 foreach ($lines as $line) {
     // Remove spaces
     $nospace = str_replace(' ', '', $line);
