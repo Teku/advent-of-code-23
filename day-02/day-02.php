@@ -14,6 +14,7 @@ $max_values = array(
 );
 
 $game_sum = 0;
+$game_power_total = 0;
 
 // Part 1
 foreach ($lines as $line) {
@@ -27,7 +28,7 @@ foreach ($lines as $line) {
     preg_match('/Game(\d+)/', $split[0], $game_info);
     $game_number = $game_info[1] . PHP_EOL;
 
-    $cubes_count = array(
+    $cubes_value = array(
         'red' => 0,
         'green' => 0,
         'blue' => 0
@@ -43,8 +44,8 @@ foreach ($lines as $line) {
         foreach ($cubes as $cube) {
             preg_match('/(\d+)(\w+)/', $cube, $cube_info);
 
-            if ($cube_info[1] > $cubes_count[$cube_info[2]]) {
-                $cubes_count[$cube_info[2]] = $cube_info[1];
+            if ($cube_info[1] > $cubes_value[$cube_info[2]]) {
+                $cubes_value[$cube_info[2]] = $cube_info[1];
             }
         }
 
@@ -54,7 +55,7 @@ foreach ($lines as $line) {
 
     // Check max values
     foreach ($max_values as $color => $count) {
-        if($cubes_count[$color] > $count) {
+        if($cubes_value[$color] > $count) {
             // Invalid...
             $valid = false;
         }
@@ -63,6 +64,11 @@ foreach ($lines as $line) {
     if($valid) {
         $game_sum += $game_number;
     }
+
+    // Part 2
+    $game_power = $cubes_value['red'] * $cubes_value['green'] * $cubes_value['blue'];
+    $game_power_total += $game_power;
 }
 
-echo $game_sum. PHP_EOL;
+echo "Part 1: " . $game_sum. PHP_EOL;
+echo "Part 2: ". $game_power_total . PHP_EOL;
