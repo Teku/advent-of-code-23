@@ -9,6 +9,7 @@ $lines = explode("\n", $data);
 
 $winnings = [];
 
+if (false) {
 // Part 1
 foreach ($lines as $line) {
 
@@ -51,23 +52,51 @@ foreach($winnings as $card => $total) {
 }
 
 echo "Part 1: ". $total_winnings. PHP_EOL;
-
-// Part 2
-$won = [];
-$copies = [];
-
-foreach ($lines as $i => $line) {
-
-    if($line === "") continue;
-
-    $copies = check_cards($line, $lines, $i);
 }
 
-var_dump($copies);
+// Part 2
+function processScratchCard($card, &$copies, &$totalCards) {
 
-function check_cards($line, $lines, $index, $copies = []) {
+    // Check card
+    $card_meta = cardMeta($card);
+
+    $card = $card_meta['card'];
+    $winning = $card_meta['winning'];
+    $given = $card_meta['given'];
+
+    $matches = count(array_intersect($given, $winning));
+
+    $total = 1;
+    if(isset($copies[$card])) {
+        $total += $copies[$card];
+        unset($copies[$card]);
+    }
+
+    // referenced: https://github.com/TomKauffeld/advent-of-code-2023/blob/main/day04/part2/main.php
+    for ($i = 0; $i < $matches; ++$i) {
+        $index = $card + $i + 1;
+        $copies[$index] = $total + ($copies[$index]?? 0);
+    }
+
+    $totalCards += $total;
+}
+
+$totalCards = 0;
+$copies = [];
+
+$i = 0;
+
+foreach ($lines as $line) {
+    processScratchCard($line, $copies, $totalCards);
+}
+
+echo "Total Scratchcards: $totalCards\n";
+
+function cardMeta($string) : array {
+    if (empty($string)) return [];
+
     // card : values
-    $split_card = explode(': ', $line);
+    $split_card = explode(': ', $string);
 
     preg_match('/(\d+)/', $split_card[0], $card_info);
     $card = $card_info[1];
@@ -80,30 +109,9 @@ function check_cards($line, $lines, $index, $copies = []) {
     $winning = explode(' ', $split_values[0]);
     $given = explode(' ', $split_values[1]);
 
-    $draw = 0;
-
-    foreach($winning as $number) {
-        if(in_array($number, $given)) {
-            $draw += 1;// Draw +1 cards
-        }
-    }
-
-    echo "card $card draws $draw " . PHP_EOL;
-
-    // Draw cards...
-    $start_pos = $index + 1;
-
-    for($i = $start_pos; $i < $start_pos + $draw; $i++) {
-        echo $lines[$i] . PHP_EOL;
-        $copies[] = $lines[$i];
-    }
-
-    if ($i >= count($lines)) return $copies;
-
-    if ($draw > 0) {
-        echo "draw > 0 ". PHP_EOL;
-        unset($lines[$index]);
-    }
-
-    check_cards($line, $lines, $index, $copies);
+    return [
+        'card' => $card,
+        'winning' => $winning,
+        'given' => $given
+    ];
 }
