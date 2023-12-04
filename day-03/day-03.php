@@ -19,7 +19,8 @@ foreach ($lines as $i => $line) {
 }
 
 
-
+// Part 1
+if (false) {
 foreach ($lines as $i => $line) {
     // skip first... and last row
     if ($i == 0 || $i == count($lines) - 1) continue;
@@ -70,6 +71,7 @@ foreach ($lines as $i => $line) {
         $found_number = matched_position($line);
     }
 
+    /*
     var_dump([
         'original' => $unchanged,
         'line' => $line,
@@ -77,8 +79,7 @@ foreach ($lines as $i => $line) {
         'smush' => implode($smush),
         'parts' => $matched_parts
     ]);
-
-    if($i > 2) die();
+    */
 }
 
 $total = 0;
@@ -88,9 +89,124 @@ foreach ($matched_parts as $part_num) {
 
 echo "Part 1: ". $total. "\n";
 
+}
+
+// Part 2
+
+$resultList = [];
+foreach ($lines as $y => $line) {
+
+    if ($y > 0 && $y < count($lines) - 1) {
+        echo $lines[$y]. "\n";
+    }
+
+    //if ($y > 2) continue;
+
+    $_line = str_split($line);
+    $lineLength = count($_line);
+
+    if($_line === null) continue;
+
+    // Iterate over each character
+    for ($x = 0; $x < $lineLength; $x++) {
+
+        if(!isset($_line)) continue;
+
+        if($_line[$x] === '*') {
+
+            $directions = [
+                'topLeft' => '',
+                'top' => '',
+                'topRight' => '',
+                'right' => '',
+                'bottomRight' => '',
+                'bottom' => '',
+                'bottomLeft' => '',
+                'left' => '',
+            ];
+
+            foreach ($directions as $key => &$number) {
+                $dx = $dy = 0;
+
+                // Update coordinates based on direction
+                switch ($key) {
+                    case 'topLeft': $dx = $x-1; $dy = $y-1; break;
+                    case 'top':  $dx = $x; $dy = $y-1; break;
+                    case 'topRight': $dx = $x+1; $dy = $y-1; break;
+                    case 'right': $dx = $x+1; $dy = $y; break;
+                    case 'bottomRight': $dx = $x+1; $dy = $y+1; break;
+                    case 'bottom': $dx = $x; $dy = $y+1; break;
+                    case 'bottomLeft': $dx = $x-1; $dy = $y+1; break;
+                    case 'left': $dx = $x-1; $dy = $y; break;
+                }
+
+                // Iterate to extract adjacent numbers in the current direction
+                $_comparison_line = $lines[$dy];
+                $_char = str_split($_comparison_line);
+
+                if(is_numeric($_char[$dx])) {
+                    // First number in the line that matches the range provided.
+                    $found_number = matched_position($_comparison_line);
+                    
+                    // Check if we have a match in the range...
+                    while (!empty($found_number)) {
+
+                        // Check range
+                        if ($found_number['start'] <= $x && $found_number['end'] >= $x) {
+                            $part_num = $found_number['matched'];
+                        }
+
+                        // Remove found number...
+                        for($offset=$found_number['start'] + 1; $offset < $found_number['end']; $offset++) {
+                            $temp = str_split($_comparison_line);
+                            $temp[$offset] = '.';
+                            $_comparison_line = implode($temp);
+                        }
+                        //echo $_comparison_line. "\n";
+
+                        $found_number = matched_position($_comparison_line);
+                    }
+
+                    $debug = "Line: {$y} - Character: {$x} - Matching Line: {$dy}, Char: {$dx} - Number: " . $part_num;
+
+                    $matched_parts[$y][$x]['matches'][] = $part_num;
+                    $matched_parts[$y][$x]['line'] = $lines[$dy];
+                    $matched_parts[$y][$x]['debug'] = $debug;
+
+                }
+
+                // Check if any adjacent numbers are found in any direction
+            }
+        }
+    }
+
+    
+}
+
+foreach($matched_parts as $lines) {
+    foreach ($lines as $gears) {
+        $_matches = array_values(array_unique($gears['matches']));
+        if (count($_matches) > 1) {
+            var_dump($gears);
+            $resultList[] =  $_matches[0] * $_matches[1];
+        }
+    }
+}
+
+
+
+$total = 0;
+foreach ($resultList as $amount) {
+    $total += $amount;
+}
+
+echo "Part 2: ". $total . "\n";
+
+
+
 function symbol($char): int|false {
     // Not a number or period
-    return preg_match('/[\*]/', $char);
+    return preg_match('/[^\d\.]/', $char);
 }
 
 function matched_position($string): array {
