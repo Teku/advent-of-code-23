@@ -15,7 +15,9 @@ $unchanged = '';
 // PADDING
 $lines = pad_data_y($lines);
 foreach ($lines as $i => $line) {
-    $lines[$i] = pad_data_x($line);
+    if(strlen($line) > 0) {
+        $lines[$i] = pad_data_x($line);
+    }
 }
 
 
@@ -70,16 +72,6 @@ foreach ($lines as $i => $line) {
 
         $found_number = matched_position($line);
     }
-
-    /*
-    var_dump([
-        'original' => $unchanged,
-        'line' => $line,
-        'current' => implode($current),
-        'smush' => implode($smush),
-        'parts' => $matched_parts
-    ]);
-    */
 }
 
 $total = 0;
@@ -92,15 +84,8 @@ echo "Part 1: ". $total. "\n";
 }
 
 // Part 2
-
 $resultList = [];
 foreach ($lines as $y => $line) {
-
-    if ($y > 0 && $y < count($lines) - 1) {
-        echo $lines[$y]. "\n";
-    }
-
-    //if ($y > 2) continue;
 
     $_line = str_split($line);
     $lineLength = count($_line);
@@ -116,35 +101,53 @@ foreach ($lines as $y => $line) {
 
             $directions = [
                 'topLeft' => '',
+                'left' => '',
+                'bottomLeft' => '',
                 'top' => '',
+                'bottom' => '',
                 'topRight' => '',
                 'right' => '',
                 'bottomRight' => '',
-                'bottom' => '',
-                'bottomLeft' => '',
-                'left' => '',
             ];
+
+            /*
+            $coords = [-1, 0, 1];
+
+            foreach ($coords as $y) {
+                foreach ($coords as $x) {
+                    echo "{$x}, {$y}\n";
+                }
+            }
+            */
 
             foreach ($directions as $key => &$number) {
                 $dx = $dy = 0;
 
                 // Update coordinates based on direction
                 switch ($key) {
-                    case 'topLeft': $dx = $x-1; $dy = $y-1; break;
-                    case 'top':  $dx = $x; $dy = $y-1; break;
-                    case 'topRight': $dx = $x+1; $dy = $y-1; break;
-                    case 'right': $dx = $x+1; $dy = $y; break;
-                    case 'bottomRight': $dx = $x+1; $dy = $y+1; break;
-                    case 'bottom': $dx = $x; $dy = $y+1; break;
-                    case 'bottomLeft': $dx = $x-1; $dy = $y+1; break;
-                    case 'left': $dx = $x-1; $dy = $y; break;
+                    case 'topLeft':
+                        $dx = $x-1; $dy = $y-1; break;
+                    case 'left':
+                        $dx = $x-1; $dy = $y;   break;
+                    case 'bottomLeft':
+                        $dx = $x-1; $dy = $y+1; break;
+                    case 'top':
+                        $dx = $x;   $dy = $y-1; break;
+                    case 'bottom':
+                        $dx = $x;   $dy = $y+1; break;
+                    case 'topRight':
+                        $dx = $x+1; $dy = $y-1; break;
+                    case 'right':
+                        $dx = $x+1; $dy = $y;   break;
+                    case 'bottomRight':
+                        $dx = $x+1; $dy = $y+1; break;
                 }
 
                 // Iterate to extract adjacent numbers in the current direction
                 $_comparison_line = $lines[$dy];
-                $_char = str_split($_comparison_line);
+                $_char = str_split($lines[$dy]);
 
-                if(is_numeric($_char[$dx])) {
+                if(isset($_char[$dx]) && is_numeric($_char[$dx])) {
                     // First number in the line that matches the range provided.
                     $found_number = matched_position($_comparison_line);
                     
@@ -154,6 +157,7 @@ foreach ($lines as $y => $line) {
                         // Check range
                         if ($found_number['start'] <= $x && $found_number['end'] >= $x) {
                             $part_num = $found_number['matched'];
+                            $matched_parts[$y][$x]['matches'][] = $part_num;
                         }
 
                         // Remove found number...
@@ -162,17 +166,12 @@ foreach ($lines as $y => $line) {
                             $temp[$offset] = '.';
                             $_comparison_line = implode($temp);
                         }
-                        //echo $_comparison_line. "\n";
 
                         $found_number = matched_position($_comparison_line);
                     }
-
-                    $debug = "Line: {$y} - Character: {$x} - Matching Line: {$dy}, Char: {$dx} - Number: " . $part_num;
-
-                    $matched_parts[$y][$x]['matches'][] = $part_num;
+                    
                     $matched_parts[$y][$x]['line'] = $lines[$dy];
                     $matched_parts[$y][$x]['debug'] = $debug;
-
                 }
 
                 // Check if any adjacent numbers are found in any direction
@@ -187,7 +186,6 @@ foreach($matched_parts as $lines) {
     foreach ($lines as $gears) {
         $_matches = array_values(array_unique($gears['matches']));
         if (count($_matches) > 1) {
-            var_dump($gears);
             $resultList[] =  $_matches[0] * $_matches[1];
         }
     }
@@ -276,6 +274,9 @@ function pad_data_y ($lines): array {
 }
 
 function pad_data_x ($line): string {
+    // stip out all symbols but *
+    $line = preg_replace('/[^\d\*\.]/', '.', $line);
+
     // add a '.' to the start/end of the line
     return str_pad($line, strlen($line) + 2, '.', STR_PAD_BOTH);
 }
