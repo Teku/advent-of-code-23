@@ -8,8 +8,8 @@ $data = $daily->get();
 $lines = explode("\n", $data);
 
 $seeds = [];
-$map_count = 0;
 $maps = [];
+$map_count = 0;
 
 // Part 1 - get seeds and maps
 foreach ($lines as $line => $data) {
@@ -44,36 +44,48 @@ foreach ($lines as $line => $data) {
 $seed_start = 0;
 sort($seeds);
 
+// $map[] = ['source' => 'destination']
+
+
 // Part 1 - iterate through seeds
 foreach ($seeds as $seed) {
     $seed_end = $seed;
-    echo "Seeds: ". $seed_start ." to ". $seed_end . PHP_EOL;
+    echo "Source: ". $seed_start ." to ". $seed_end . PHP_EOL;
 
     // check maps
     foreach ($maps as $map_id => $map) {
         // check first range...
         if ($map_id > 0) continue;
         
+        $matches_found = 0;
+
         foreach ($map as $range_id => $range) {
-            $_source_start = $range['source_range_start'];
             $_destination = $range['destination_range_start'];
+            $_source_start = $range['source_range_start'];
             $_length = $range['range_length']-1;
 
-            $matches_found = 0;
+            
             // check range?
             $_source_end = $_source_start + $_length;
 
-            if ($seed_start >= $_source_start && $_source_end >= $seed_end) {
-                echo "within range...". PHP_EOL;
+            // seed start, seed end (update end until no match)
+            // get new seed end within match
+            if ($seed_start >= $_source_start && $seed_end <= $_source_end) {
                 $matches_found += 1;
+                $seed_end = $_source_end;
+                break;
             }
+
+            // output matches
+            if ($matches_found == 1) {
+                echo "Matches: ". $_source_start. " to ". $_source_end. PHP_EOL;
+            }
+            
         }
     }
-    echo "Matches found: ". $matches_found. PHP_EOL;
+    echo "\tMatches found: ". $matches_found ."\n". PHP_EOL;
     $seed_start = $seed_end + 1;
 }
-
-//var_dump( $maps );
 /*
 
 [seed_start, seed_end] and [source_start, source_end]
