@@ -1,4 +1,4 @@
-# Advent of Code 2023
+# Advent of Code 2023 - (ended on day 5 due to lack of time)
 
 For the first time I am going to try to do the 2023 Advent of Code... and keep a public log of it.
 
